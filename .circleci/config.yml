@@ -40,15 +40,6 @@ jobs:
             echo "Terrafom Validation"
             terraform validate
 
-  # terraform-validation:
-  #   docker:
-  #     - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: terraform validate
-  #         command: terraform validate
-
   terraform-plan:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
@@ -60,7 +51,9 @@ jobs:
       - checkout
       - run: 
           name: Terraform Plan
-          command: terraform plan -var-file=.terraform/backend.tfvars
+          command: |
+            terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
+            terraform plan -var-file=dev.tfvars
 
   # Conditional Approval based on Code Coverage
   apply-if-coverage:
@@ -89,15 +82,9 @@ workflows:
       - terraform-init-validation:
           requires:
             - tfsec
-      # - terraform-validation:
-      #     requires:
-      #       - terraform-init
-      # - terraform-validation:
-      #     requires:
-      #       - terraform-init
-      # - terraform-plan:
-      #     requires:
-      #       - terraform-validation
+      - terraform-plan:
+          requires:
+            - terraform-init-validation
       # - hold-appy:
       #     type: approval
       #     requires:
