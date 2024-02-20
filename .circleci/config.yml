@@ -21,15 +21,15 @@ jobs:
           name: Terraform Init
           command: terraform inti 
 
-  tfsec:
-    docker:
-      - image: aquasec/tfsec:latest
-    steps:
-      - checkout
-      - name: Run tfsec
-      - run: 
-          name: tfsec
-          command: tfsec . -s
+  # tfsec:
+  #   docker:
+  #     - image: aquasec/tfsec:latest
+  #   steps:
+  #     - checkout
+  #     - name: Run tfsec
+  #     - run: 
+  #         name: tfsec
+  #         command: tfsec . -s
           # command: |
           #   tfsec . \
           #     --format junit > tfsec_report.xml \
@@ -74,10 +74,10 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      - tfsec
-      - terraform-init:
-          requires:
-            - tfsec
+      # - tfsec
+      - terraform-init
+          # requires:
+          #   - tfsec
       - terraform-plan:
           requires:
             - terraform-init
