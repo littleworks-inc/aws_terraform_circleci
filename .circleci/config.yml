@@ -28,23 +28,25 @@ jobs:
   #         #     ${?TFSEC_RULESET:+--ruleset $TFSEC_RULESET} \
   #         #     ${?TFSEC_EXCLUDE_RULES:+--exclude=$TFSEC_EXCLUDE_RULES}
 
-  terraform-init:
+  terraform-init-validation:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - checkout
       - run:
           name: Terraform Init
-          command: terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
+          command: |
+            terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
+            terraform validate
 
-  terraform-validation:
-    docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-    steps:
-      - checkout
-      - run:
-          name: terraform validate
-          command: terraform validate
+  # terraform-validation:
+  #   docker:
+  #     - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: terraform validate
+  #         command: terraform validate
 
   terraform-plan:
     docker:
@@ -83,12 +85,12 @@ workflows:
   build_approve_deploy:
     jobs:
       - tfsec
-      - terraform-init:
+      - terraform-init-validation:
           requires:
             - tfsec
-      - terraform-validation:
-          requires:
-            - terraform-init
+      # - terraform-validation:
+      #     requires:
+      #       - terraform-init
       # - terraform-validation:
       #     requires:
       #       - terraform-init
