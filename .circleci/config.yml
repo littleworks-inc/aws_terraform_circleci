@@ -4,18 +4,12 @@ environment:
   variables:
     AWS_ACCESS_KEY_ID: "$AWS_ACCESS_KEY_ID"
     AWS_SECRET_ACCESS_KEY: "$AWS_SECRET_ACCESS_KEY"
-    # TERRAFORM_WORKSPACE: "dev" # Modify based on your workspace
-    # TFSEC_RULESET: "aquasec" # Choose rule set or leave empty for all
-    # TFSEC_EXCLUDE_RULES: "" # Optional comma-separated list of rules to exclude
-    # APPROVAL_EMAIL: "your_email@example.com" # Update with recipient email
-    # MIN_COVERAGE: 80 # Adjust minimum code coverage threshold (optional)
 
 jobs:
 
   tfsec:
     docker:
       - image: aquasec/tfsec-ci:latest
-        # user: root
     steps:
       - checkout
       - run: 
@@ -43,10 +37,6 @@ jobs:
   terraform-plan:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-    # environment:
-    #   override:
-    #     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-    #     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     steps:
       - checkout
       - run: 
@@ -59,15 +49,13 @@ jobs:
   terraform-apply:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-    # environment:
-    #   override:
-    #     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-    #     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     steps:
       - checkout
       - run:
           name: Terraform Apply 
-          command: terraform apply 
+          command: |
+            terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
+            terraform apply 
       # - run: |
       #     COVERAGE=$(cat coverage_report.xml | grep -A3 "<line coverage" | tail -n1 | cut -d'"' -f2)
       #     if [[ $COVERAGE -ge $MIN_COVERAGE ]]; then
