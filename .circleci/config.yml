@@ -36,7 +36,7 @@ jobs:
       - checkout
       - run:
           name: Terraform Init
-          command: terraform inti 
+          command: terraform init 
 
   terraform-validation:
     docker:
