@@ -72,7 +72,7 @@ jobs:
       #     fi
 
 workflows:
-  build-approve-deploy:
+  build-and-deploy:
     jobs:
       - tfsec
       - terraform-init:
