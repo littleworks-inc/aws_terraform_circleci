@@ -36,7 +36,7 @@ jobs:
       - checkout
       - run:
           name: Terraform Init
-          command: terraform init 
+          command: --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
 
   terraform-validation:
     docker:
