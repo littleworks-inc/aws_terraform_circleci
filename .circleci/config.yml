@@ -34,7 +34,6 @@ jobs:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - checkout
-      - name: Terraform Init
       - run:
           name: Terraform Init
           command: terraform inti 
@@ -85,7 +84,7 @@ jobs:
       #     fi
 
 workflows:
-  build-and-deploy:
+  build_approve_deploy:
     jobs:
       # - tfsec
       - terraform-init
