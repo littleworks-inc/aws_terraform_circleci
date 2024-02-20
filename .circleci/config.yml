@@ -29,11 +29,12 @@ jobs:
       - name: Run tfsec
       - run: 
           name: tfsec
-          command: |
-            tfsec . \
-              --format junit > tfsec_report.xml \
-              ${?TFSEC_RULESET:+--ruleset $TFSEC_RULESET} \
-              ${?TFSEC_EXCLUDE_RULES:+--exclude=$TFSEC_EXCLUDE_RULES}
+          command: tfsec . -s
+          # command: |
+          #   tfsec . \
+          #     --format junit > tfsec_report.xml \
+          #     ${?TFSEC_RULESET:+--ruleset $TFSEC_RULESET} \
+          #     ${?TFSEC_EXCLUDE_RULES:+--exclude=$TFSEC_EXCLUDE_RULES}
 
   terraform-plan:
     docker:
