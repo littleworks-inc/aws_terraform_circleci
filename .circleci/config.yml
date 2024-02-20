@@ -14,7 +14,7 @@ jobs:
 
   tfsec:
     docker:
-      - image: aquasec/tfsec:latest
+      - image: aquasec/tfsec-ci:latest
     steps:
       - checkout
       - name: Run tfsec
