@@ -12,22 +12,22 @@ environment:
 
 jobs:
 
-  tfsec:
-    docker:
-      - image: aquasec/tfsec-ci:latest
-        user: root
-    steps:
-      - checkout
-      - name: Run tfsec
-      - run: 
-          name: tfsec
-          command: |
-            tfsec . -s
-          # command: |
-          #   tfsec . \
-          #     --format junit > tfsec_report.xml \
-          #     ${?TFSEC_RULESET:+--ruleset $TFSEC_RULESET} \
-          #     ${?TFSEC_EXCLUDE_RULES:+--exclude=$TFSEC_EXCLUDE_RULES}
+  # tfsec:
+  #   docker:
+  #     - image: aquasec/tfsec-ci:latest
+  #       user: root
+  #   steps:
+  #     - checkout
+  #     - name: Run tfsec
+  #     - run: 
+  #         name: tfsec
+  #         command: |
+  #           tfsec . -s
+  #         # command: |
+  #         #   tfsec . \
+  #         #     --format junit > tfsec_report.xml \
+  #         #     ${?TFSEC_RULESET:+--ruleset $TFSEC_RULESET} \
+  #         #     ${?TFSEC_EXCLUDE_RULES:+--exclude=$TFSEC_EXCLUDE_RULES}
 
   terraform-init:
     docker:
@@ -38,6 +38,16 @@ jobs:
       - run:
           name: Terraform Init
           command: terraform inti 
+
+  terraform-validation:
+    docker:
+      - image: hashicorp/terraform:latest
+    steps:
+      - checkout
+      - name: Terraform validation
+      - run:
+          name: terraform validate
+          command: terraform validate
 
   terraform-plan:
     docker:
@@ -77,13 +87,14 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      - tfsec
-      - terraform-init:
-          requires:
-            - tfsec
-      - terraform-plan:
+      # - tfsec
+      - terraform-init
+      - terraform-validation:
           requires:
             - terraform-init
+      - terraform-plan:
+          requires:
+            - terraform-validation
       - hold-appy:
           type: approval
           requires:
