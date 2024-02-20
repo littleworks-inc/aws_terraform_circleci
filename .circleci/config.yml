@@ -15,6 +15,7 @@ jobs:
   tfsec:
     docker:
       - image: aquasec/tfsec-ci:latest
+        user: root
     steps:
       - checkout
       - name: Run tfsec
