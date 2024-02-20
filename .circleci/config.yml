@@ -11,6 +11,22 @@ environment:
     # MIN_COVERAGE: 80 # Adjust minimum code coverage threshold (optional)
 
 jobs:
+
+  tfsec:
+    docker:
+      - image: aquasec/tfsec:latest
+    steps:
+      - checkout
+      - name: Run tfsec
+      - run: 
+          name: tfsec
+          command: tfsec . -s
+          # command: |
+          #   tfsec . \
+          #     --format junit > tfsec_report.xml \
+          #     ${?TFSEC_RULESET:+--ruleset $TFSEC_RULESET} \
+          #     ${?TFSEC_EXCLUDE_RULES:+--exclude=$TFSEC_EXCLUDE_RULES}
+
   terraform-init:
     docker:
       - image: hashicorp/terraform:latest
@@ -20,21 +36,6 @@ jobs:
       - run:
           name: Terraform Init
           command: terraform inti 
-
-  # tfsec:
-  #   docker:
-  #     - image: aquasec/tfsec:latest
-  #   steps:
-  #     - checkout
-  #     - name: Run tfsec
-  #     - run: 
-  #         name: tfsec
-  #         command: tfsec . -s
-          # command: |
-          #   tfsec . \
-          #     --format junit > tfsec_report.xml \
-          #     ${?TFSEC_RULESET:+--ruleset $TFSEC_RULESET} \
-          #     ${?TFSEC_EXCLUDE_RULES:+--exclude=$TFSEC_EXCLUDE_RULES}
 
   terraform-plan:
     docker:
@@ -74,10 +75,10 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      # - tfsec
-      - terraform-init
-          # requires:
-          #   - tfsec
+      - tfsec
+      - terraform-init:
+          requires:
+            - tfsec
       - terraform-plan:
           requires:
             - terraform-init
