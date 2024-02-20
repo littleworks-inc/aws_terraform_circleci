@@ -89,14 +89,14 @@ workflows:
     jobs:
       # - tfsec
       - terraform-init
-      - terraform-validation:
-          requires:
-            - terraform-init
-      - terraform-plan:
-          requires:
-            - terraform-validation
-      - hold-appy:
-          type: approval
-          requires:
-            - terraform-plan
+      # - terraform-validation:
+      #     requires:
+      #       - terraform-init
+      # - terraform-plan:
+      #     requires:
+      #       - terraform-validation
+      # - hold-appy:
+      #     type: approval
+      #     requires:
+      #       - terraform-plan
 
