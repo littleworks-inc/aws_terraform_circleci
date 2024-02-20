@@ -88,6 +88,9 @@ workflows:
     jobs:
       # - tfsec
       - terraform-init
+      - terraform-validation:
+          requires:
+            - "terraform-init"
       # - terraform-validation:
       #     requires:
       #       - terraform-init
