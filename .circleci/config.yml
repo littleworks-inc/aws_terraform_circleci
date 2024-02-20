@@ -56,7 +56,7 @@ jobs:
             terraform plan -var-file=dev.tfvars
 
   # Conditional Approval based on Code Coverage
-  apply-if-coverage:
+  terraform-apply:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     # environment:
@@ -85,8 +85,8 @@ workflows:
       - terraform-plan:
           requires:
             - terraform-init-validation
-      # - hold-appy:
-      #     type: approval
-      #     requires:
-      #       - terraform-plan
+      - terraform-apply:
+          type: approval
+          requires:
+            - terraform-plan
 
