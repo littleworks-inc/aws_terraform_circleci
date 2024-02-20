@@ -12,17 +12,16 @@ environment:
 
 jobs:
 
-  # tfsec:
-  #   docker:
-  #     - image: aquasec/tfsec-ci:latest
-  #       user: root
-  #   steps:
-  #     - checkout
-  #     - name: Run tfsec
-  #     - run: 
-  #         name: tfsec
-  #         command: |
-  #           tfsec . -s
+  tfsec:
+    docker:
+      - image: aquasec/tfsec-ci:latest
+        # user: root
+    steps:
+      - checkout
+      - run: 
+          name: tfsec
+          command: |
+            tfsec . -s
   #         # command: |
   #         #   tfsec . \
   #         #     --format junit > tfsec_report.xml \
@@ -83,8 +82,10 @@ jobs:
 workflows:
   build_approve_deploy:
     jobs:
-      # - tfsec
-      - terraform-init
+      - tfsec
+      - terraform-init:
+          requires:
+            - tfsec
       - terraform-validation:
           requires:
             - terraform-init
