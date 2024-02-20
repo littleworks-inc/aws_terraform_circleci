@@ -34,9 +34,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Terraform Init
+          name: Terraform Init and validate
           command: |
             terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
+            echo "Terrafom Validation"
             terraform validate
 
   # terraform-validation:
