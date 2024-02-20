@@ -55,7 +55,7 @@ jobs:
           name: Terraform Apply 
           command: |
             terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
-            terraform apply 
+            terraform apply -var-file=dev.tfvars
       # - run: |
       #     COVERAGE=$(cat coverage_report.xml | grep -A3 "<line coverage" | tail -n1 | cut -d'"' -f2)
       #     if [[ $COVERAGE -ge $MIN_COVERAGE ]]; then
