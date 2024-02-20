@@ -31,7 +31,7 @@ jobs:
 
   terraform-init:
     docker:
-      - image: hashicorp/terraform:latest
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - checkout
       - name: Terraform Init
@@ -41,7 +41,7 @@ jobs:
 
   terraform-validation:
     docker:
-      - image: hashicorp/terraform:latest
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - checkout
       - name: Terraform validation
@@ -51,7 +51,7 @@ jobs:
 
   terraform-plan:
     docker:
-      - image: hashicorp/terraform:latest
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     # environment:
     #   override:
     #     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
@@ -66,7 +66,7 @@ jobs:
   # Conditional Approval based on Code Coverage
   apply-if-coverage:
     docker:
-      - image: hashicorp/terraform:latest
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     # environment:
     #   override:
     #     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
