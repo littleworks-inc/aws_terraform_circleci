@@ -43,7 +43,6 @@ jobs:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - checkout
-      - name: Terraform validation
       - run:
           name: terraform validate
           command: terraform validate
@@ -57,7 +56,6 @@ jobs:
     #     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     steps:
       - checkout
-      - name: Terraform Plan
       - run: 
           name: Terraform Plan
           command: terraform plan -var-file=.terraform/backend.tfvars
@@ -72,7 +70,6 @@ jobs:
     #     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     steps:
       - checkout
-      - name: Terraform Apply
       - run:
           name: Terraform Apply 
           command: terraform apply 
