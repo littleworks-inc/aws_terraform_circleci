@@ -1,0 +1,87 @@
+version: 2.1
+
+environment:
+  variables:
+    AWS_ACCESS_KEY_ID: "$AWS_ACCESS_KEY_ID"
+    AWS_SECRET_ACCESS_KEY: "$AWS_SECRET_ACCESS_KEY"
+    # TERRAFORM_WORKSPACE: "dev" # Modify based on your workspace
+    # TFSEC_RULESET: "aquasec" # Choose rule set or leave empty for all
+    # TFSEC_EXCLUDE_RULES: "" # Optional comma-separated list of rules to exclude
+    # APPROVAL_EMAIL: "your_email@example.com" # Update with recipient email
+    # MIN_COVERAGE: 80 # Adjust minimum code coverage threshold (optional)
+
+jobs:
+  terraform-init:
+    docker:
+      - image: hashicorp/terraform:latest
+    steps:
+      - checkout
+      - name: Terraform Init
+      - run:
+          name: Terraform Init
+          command: terraform inti 
+
+  tfsec:
+    docker:
+      - image: aquasec/tfsec:latest
+    steps:
+      - checkout
+      - name: Run tfsec
+      - run: 
+          name: tfsec
+          command: |
+            tfsec . \
+              --format junit > tfsec_report.xml \
+              ${?TFSEC_RULESET:+--ruleset $TFSEC_RULESET} \
+              ${?TFSEC_EXCLUDE_RULES:+--exclude=$TFSEC_EXCLUDE_RULES}
+
+  terraform-plan:
+    docker:
+      - image: hashicorp/terraform:latest
+    # environment:
+    #   override:
+    #     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+    #     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    steps:
+      - checkout
+      - name: Terraform Plan
+      - run: 
+          name: Terraform Plan
+          command: terraform plan -var-file=.terraform/backend.tfvars
+
+  # Conditional Approval based on Code Coverage
+  apply-if-coverage:
+    docker:
+      - image: hashicorp/terraform:latest
+    # environment:
+    #   override:
+    #     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+    #     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    steps:
+      - checkout
+      - name: Terraform Apply
+      - run:
+          name: Terraform Apply 
+          command: terraform apply 
+      # - run: |
+      #     COVERAGE=$(cat coverage_report.xml | grep -A3 "<line coverage" | tail -n1 | cut -d'"' -f2)
+      #     if [[ $COVERAGE -ge $MIN_COVERAGE ]]; then
+      #       terraform apply -var-file=.terraform/backend.tfvars
+      #       echo "Deployment triggered automatically due to meeting code coverage requirement." | mail -s "Auto-deployed Terraform changes" $APPROVAL_EMAIL
+      #     fi
+
+workflows:
+  build-approve-deploy:
+    jobs:
+      - tfsec
+      - terraform-init:
+          requires:
+            - tfsec
+      - terraform-plan:
+          requires:
+            - terraform-init
+      - hold-appy:
+          type: approval
+          requires:
+            - terraform-plan
+
