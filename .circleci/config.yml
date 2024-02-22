@@ -16,11 +16,6 @@ jobs:
           name: tfsec
           command: |
             tfsec . -s
-  #         # command: |
-  #         #   tfsec . \
-  #         #     --format junit > tfsec_report.xml \
-  #         #     ${?TFSEC_RULESET:+--ruleset $TFSEC_RULESET} \
-  #         #     ${?TFSEC_EXCLUDE_RULES:+--exclude=$TFSEC_EXCLUDE_RULES}
 
   terraform-init-validation:
     docker:
@@ -45,7 +40,6 @@ jobs:
             terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
             terraform plan -var-file=dev.tfvars
 
-  # Conditional Approval based on Code Coverage
   terraform-apply:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
@@ -56,12 +50,6 @@ jobs:
           command: |
             terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
             terraform apply -var-file=dev.tfvars
-      # - run: |
-      #     COVERAGE=$(cat coverage_report.xml | grep -A3 "<line coverage" | tail -n1 | cut -d'"' -f2)
-      #     if [[ $COVERAGE -ge $MIN_COVERAGE ]]; then
-      #       terraform apply -var-file=.terraform/backend.tfvars
-      #       echo "Deployment triggered automatically due to meeting code coverage requirement." | mail -s "Auto-deployed Terraform changes" $APPROVAL_EMAIL
-      #     fi
 
 workflows:
   build_approve_deploy:
