@@ -73,8 +73,12 @@ workflows:
       - terraform-plan:
           requires:
             - terraform-init-validation
-      - terraform-apply:
+      - hold:
           type: approval
           requires:
             - terraform-plan
+      - terraform-apply:
+          type: approval
+          requires:
+            - hold
 
