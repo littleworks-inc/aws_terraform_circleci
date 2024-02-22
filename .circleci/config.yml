@@ -78,7 +78,6 @@ workflows:
           requires:
             - terraform-plan
       - terraform-apply:
-          type: approval
           requires:
             - hold
 
