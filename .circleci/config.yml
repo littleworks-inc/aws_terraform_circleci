@@ -17,8 +17,6 @@ jobs:
 
   tfsec:
     executor: tfsec
-    # docker:
-    #   - image: aquasec/tfsec-ci:latest
     steps:
       - checkout
       - run: 
@@ -28,34 +26,19 @@ jobs:
 
   terraform-plan:
     executor: terraform
-    # docker:
-    #   - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - checkout
       - run:
           name: Terraform Init and validate
           command: |
-            terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
+            terraform init -backend-config=dev_backend.hcl
             echo "Terrafom Validation"
             terraform validate
             terraform plan -var-file=dev.tfvars
 
-  # terraform-plan:
-  #   executor: terraform
-  #   # docker:
-  #   #   - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-  #   steps:
-  #     - checkout
-  #     - run: 
-  #         name: Terraform Plan
-  #         command: |
-  #           terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
-  #           terraform plan -var-file=dev.tfvars
 
   terraform-apply:
     executor: terraform
-    # docker:
-    #   - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - checkout
       - run:
@@ -68,9 +51,6 @@ workflows:
   build_approve_deploy:
     jobs:
       - tfsec
-      # - terraform-init-validation:
-      #     requires:
-      #       - tfsec
       - terraform-plan:
           requires:
             - tfsec
