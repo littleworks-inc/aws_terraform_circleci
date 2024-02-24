@@ -26,7 +26,7 @@ jobs:
           command: |
             tfsec . -s
 
-  terraform-init-validation:
+  terraform-plan:
     executor: terraform
     # docker:
     #   - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
@@ -38,18 +38,19 @@ jobs:
             terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
             echo "Terrafom Validation"
             terraform validate
-
-  terraform-plan:
-    executor: terraform
-    # docker:
-    #   - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-    steps:
-      - checkout
-      - run: 
-          name: Terraform Plan
-          command: |
-            terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
             terraform plan -var-file=dev.tfvars
+
+  # terraform-plan:
+  #   executor: terraform
+  #   # docker:
+  #   #   - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+  #   steps:
+  #     - checkout
+  #     - run: 
+  #         name: Terraform Plan
+  #         command: |
+  #           terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
+  #           terraform plan -var-file=dev.tfvars
 
   terraform-apply:
     executor: terraform
@@ -67,12 +68,12 @@ workflows:
   build_approve_deploy:
     jobs:
       - tfsec
-      - terraform-init-validation:
-          requires:
-            - tfsec
+      # - terraform-init-validation:
+      #     requires:
+      #       - tfsec
       - terraform-plan:
           requires:
-            - terraform-init-validation
+            - tfsec
       - hold:
           type: approval
           requires:
