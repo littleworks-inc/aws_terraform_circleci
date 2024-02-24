@@ -31,11 +31,10 @@ jobs:
       - run:
           name: Terraform Init, validate and Plan
           command: |
-            terraform init -backend-config=dev_backend.hcl
-            echo "*** Terrafom Validation ***"
+            terraform init -backend-config=${BACKEND_CONFIG}
+            echo "*** Terraform Validation ***"
             terraform validate
-            terraform plan -var-file=dev.tfvars
-
+            terraform plan -var-file=${VAR_FILE}
 
   terraform-apply:
     executor: terraform
@@ -44,8 +43,8 @@ jobs:
       - run:
           name: Terraform Apply 
           command: |
-            terraform init -backend-config=dev_backend.hcl
-            terraform apply -var-file=dev.tfvars
+            terraform init -backend-config=${BACKEND_CONFIG}
+            terraform apply -var-file=${VAR_FILE}
 
 workflows:
   build_approve_deploy:
@@ -54,11 +53,60 @@ workflows:
       - terraform-plan:
           requires:
             - tfsec
-      - hold:
-          type: approval
-          requires:
-            - terraform-plan
+          environment:
+            BACKEND_CONFIG: dev_backend.hcl
+            VAR_FILE: dev.tfvars
+          filters:
+            branches:
+              only:
+                - main
       - terraform-apply:
           requires:
-            - hold
-
+            - terraform-plan
+          environment:
+            BACKEND_CONFIG: dev_backend.hcl
+            VAR_FILE: dev.tfvars
+          filters:
+            branches:
+              only:
+                - dev
+      - terraform-plan:
+          requires:
+            - tfsec
+          environment:
+            BACKEND_CONFIG: test_backend.hcl
+            VAR_FILE: test.tfvars
+          filters:
+            branches:
+              only:
+                - test
+      - terraform-apply:
+          requires:
+            - terraform-plan
+          environment:
+            BACKEND_CONFIG: test_backend.hcl
+            VAR_FILE: test.tfvars
+          filters:
+            branches:
+              only:
+                - test
+      - terraform-plan:
+          requires:
+            - tfsec
+          environment:
+            BACKEND_CONFIG: prod_backend.hcl
+            VAR_FILE: prod.tfvars
+          filters:
+            branches:
+              only:
+                - master
+      - terraform-apply:
+          requires:
+            - terraform-plan
+          environment:
+            BACKEND_CONFIG: prod_backend.hcl
+            VAR_FILE: prod.tfvars
+          filters:
+            branches:
+              only:
+                - master
