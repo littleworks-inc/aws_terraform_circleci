@@ -44,7 +44,7 @@ jobs:
       - run:
           name: Terraform Apply 
           command: |
-            terraform init --backend-config="bucket=devopsdemobucket01" --backend-config="key=state/terraform.tfstate" -backend-config="region=ca-central-1" -backend-config="dynamodb_table=devtoolhub" -backend-config="encrypt=true"
+            terraform init -backend-config=dev_backend.hcl
             terraform apply -var-file=dev.tfvars
 
 workflows:
