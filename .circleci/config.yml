@@ -26,7 +26,8 @@ jobs:
       - run:
           name: Set Environment and Terraform Plan
           command: |
-            if [ "$CIRCLE_BRANCH" == "main" ]; then
+            echo "Running Terraform Plan for branch: $CIRCLE_BRANCH"
+            if [ "$CIRCLE_BRANCH" == "dev" ]; then
               export ENV_TYPE="dev"
               terraform init -backend-config=dev_backend.hcl
               terraform plan -var-file=dev.tfvars
@@ -39,7 +40,7 @@ jobs:
               terraform init -backend-config=prod_backend.hcl
               terraform plan -var-file=prod.tfvars
             else
-              echo "Unsupported branch"
+              echo "Unsupported branch: $CIRCLE_BRANCH"
               exit 1
             fi
 
@@ -50,7 +51,8 @@ jobs:
       - run:
           name: Set Environment and Terraform Apply 
           command: |
-            if [ "$CIRCLE_BRANCH" == "main" ]; then
+            echo "Running Terraform Apply for branch: $CIRCLE_BRANCH"
+            if [ "$CIRCLE_BRANCH" == "dev" ]; then
               export ENV_TYPE="dev"
               terraform init -backend-config=dev_backend.hcl
               terraform apply -var-file=dev.tfvars
@@ -63,7 +65,7 @@ jobs:
               terraform init -backend-config=prod_backend.hcl
               terraform apply -var-file=prod.tfvars
             else
-              echo "Unsupported branch"
+              echo "Unsupported branch: $CIRCLE_BRANCH"
               exit 1
             fi
 
