@@ -29,10 +29,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Terraform Init and validate
+          name: Terraform Init, validate and Plan
           command: |
             terraform init -backend-config=dev_backend.hcl
-            echo "Terrafom Validation"
+            echo "*** Terrafom Validation ***"
             terraform validate
             terraform plan -var-file=dev.tfvars
 
