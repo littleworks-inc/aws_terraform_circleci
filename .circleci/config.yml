@@ -31,10 +31,10 @@ jobs:
       - run:
           name: Terraform Init, validate and Plan
           command: |
-            terraform init -backend-config=${environment.BACKEND_FILE}
+            terraform init -backend-config=dev_backend.hcl
             echo "*** Terrafom Validation ***"
             terraform validate
-            terraform plan -var-file=${environment.TFVARS_FILE}
+            terraform plan -var-file=dev.tfvars
 
 
   terraform-apply:
@@ -53,17 +53,12 @@ workflows:
       - tfsec
       - terraform-plan:
           requires:
-            - tfsec
-          environment:
-            TF_ENV: "test"
-            BACKEND_FILE: "dev_backend.hcl"  # Assuming test uses the same backend as dev
-            TFVARS_FILE: "dev.tfvars"
-
-      # - hold:
-      #     type: approval
-      #     requires:
-      #       - terraform-plan
-      # - terraform-apply:
-      #     requires:
-      #       - hold
+            - tfsec 
+      - hold:
+          type: approval
+          requires:
+            - terraform-plan
+      - terraform-apply:
+          requires:
+            - hold
 
