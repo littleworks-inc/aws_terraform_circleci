@@ -8,11 +8,6 @@ executors:
     docker:
       - image: aquasec/tfsec-ci:latest
 
-environment:
-  variables:
-    AWS_ACCESS_KEY_ID: "$AWS_ACCESS_KEY_ID"
-    AWS_SECRET_ACCESS_KEY: "$AWS_SECRET_ACCESS_KEY"
-
 jobs:
 
   tfsec:
@@ -29,23 +24,48 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Terraform Init, validate and Plan
+          name: Set Environment and Terraform Plan
           command: |
-            terraform init -backend-config=dev_backend.hcl
-            echo "*** Terrafom Validation ***"
-            terraform validate
-            terraform plan -var-file=dev.tfvars
-
+            if [ "$CIRCLE_BRANCH" == "main" ]; then
+              export ENV_TYPE="dev"
+              terraform init -backend-config=dev_backend.hcl
+              terraform plan -var-file=dev.tfvars
+            elif [ "$CIRCLE_BRANCH" == "test" ]; then
+              export ENV_TYPE="test"
+              terraform init -backend-config=test_backend.hcl
+              terraform plan -var-file=test.tfvars
+            elif [ "$CIRCLE_BRANCH" == "master" ]; then
+              export ENV_TYPE="prod"
+              terraform init -backend-config=prod_backend.hcl
+              terraform plan -var-file=prod.tfvars
+            else
+              echo "Unsupported branch"
+              exit 1
+            fi
 
   terraform-apply:
     executor: terraform
     steps:
       - checkout
       - run:
-          name: Terraform Apply 
+          name: Set Environment and Terraform Apply 
           command: |
-            terraform init -backend-config=dev_backend.hcl
-            terraform apply -var-file=dev.tfvars
+            if [ "$CIRCLE_BRANCH" == "main" ]; then
+              export ENV_TYPE="dev"
+              terraform init -backend-config=dev_backend.hcl
+              terraform apply -var-file=dev.tfvars
+            elif [ "$CIRCLE_BRANCH" == "test" ]; then
+              export ENV_TYPE="test"
+              terraform init -backend-config=test_backend.hcl
+              terraform apply -var-file=test.tfvars
+            elif [ "$CIRCLE_BRANCH" == "master" ]; then
+              export ENV_TYPE="prod"
+              terraform init -backend-config=prod_backend.hcl
+              terraform apply -var-file=prod.tfvars
+            else
+              echo "Unsupported branch"
+              exit 1
+            fi
 
 workflows:
   build_approve_deploy:
@@ -61,4 +81,3 @@ workflows:
       - terraform-apply:
           requires:
             - hold
-
